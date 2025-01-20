@@ -5,33 +5,44 @@
     <title>График двух функций</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Оформление таблиц */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            width: 95%; /* Устанавливаем ширину графика на всю страницу */
+        }
+
+        .tables-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
         table {
             width: 45%;
-            margin-top: 20px;
             border-collapse: collapse;
-            margin: 0 auto;
         }
+
         th, td {
             border: 1px solid #ccc;
             padding: 8px;
             text-align: center;
         }
 
-        /* Контейнер для таблиц */
-        .tables-container {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
+        th {
+            background-color: #f4f4f4;
         }
     </style>
 </head>
 <body>
-    <canvas id="chart" width="800" height="400"></canvas>
+    <canvas id="chart"></canvas>
 
-    <!-- Контейнер с таблицами под графиком -->
     <div class="tables-container">
-        <!-- Таблица для f₁(x) -->
         <div>
             <h3>Таблица для f₁(x) = ∛(|x| + 2) - 1</h3>
             <table id="table_f1">
@@ -44,8 +55,6 @@
                 <tbody></tbody>
             </table>
         </div>
-
-        <!-- Таблица для f₂(x) -->
         <div>
             <h3>Таблица для f₂(x) = sin(x²) + x⁰.²⁵</h3>
             <table id="table_f2">
@@ -59,6 +68,7 @@
             </table>
         </div>
     </div>
+
     <script>
         // Определение функций
         function f1(x) {
@@ -69,38 +79,39 @@
             return Math.sin(x ** 2) + x ** 0.25; // f₂(x) = sin(x²) + x⁰.²⁵
         }
 
-        // Генерация данных для графика
-        const step = 0.3; // Шаг табулирования
+        // Генерация данных для графика и таблиц
+        const step = 0.1; // Шаг табулирования
         const xValues = [];
         const yValues1 = [];
         const yValues2 = [];
         const tableF1 = [];
         const tableF2 = [];
-
         for (let x = -10; x <= 10; x += step) {
-            const xRounded = parseFloat(x.toFixed(3)); // Округление до 3 знаков
+            const xRounded = parseFloat(x.toFixed(2));
             xValues.push(xRounded);
-            const y1 = f1(xRounded);
-            const y2 = f2(xRounded);
+
+            const y1 = xRounded <= -0.1 ? f1(xRounded) : null;
             yValues1.push(y1);
+            if (y1 !== null) tableF1.push([xRounded, y1]);
+
+            const y2 = f2(xRounded);
             yValues2.push(y2);
-            tableF1.push([xRounded, y1]);
             tableF2.push([xRounded, y2]);
         }
 
-        // Заполнение таблицы f₁(x)
+        // Заполнение таблицы для f₁(x)
         const tableF1Body = document.querySelector('#table_f1 tbody');
         tableF1.forEach(([x, y]) => {
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${x}</td><td>${y}</td>`;
+            row.innerHTML = `<td>${x}</td><td>${y.toFixed(3)}</td>`;
             tableF1Body.appendChild(row);
         });
 
-        // Заполнение таблицы f₂(x)
+        // Заполнение таблицы для f₂(x)
         const tableF2Body = document.querySelector('#table_f2 tbody');
         tableF2.forEach(([x, y]) => {
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${x}</td><td>${y}</td>`;
+            row.innerHTML = `<td>${x}</td><td>${y.toFixed(3)}</td>`;
             tableF2Body.appendChild(row);
         });
 
@@ -112,20 +123,19 @@
                 labels: xValues,
                 datasets: [
                     {
-                        label: 'f₁(x) = ∛(|x| + 2) - 1',
+                        label: 'f₁(x) = ∛(|x| + 2) - 1 (x ≤ -0.1)',
                         data: yValues1,
                         borderColor: 'red',
                         borderWidth: 2,
                         fill: false,
-                        tension: 0.4 // Сглаживание кривой
+                        spanGaps: false // Убираем соединение разрывов
                     },
                     {
                         label: 'f₂(x) = sin(x²) + x⁰.²⁵',
                         data: yValues2,
                         borderColor: 'blue',
                         borderWidth: 2,
-                        fill: false,
-                        tension: 0.4 // Сглаживание кривой
+                        fill: false
                     }
                 ]
             },
@@ -142,10 +152,13 @@
                 },
                 scales: {
                     x: {
+                        type: 'linear',
                         title: {
                             display: true,
                             text: 'x'
-                        }
+                        },
+                        min: -10,
+                        max: 10
                     },
                     y: {
                         title: {
