@@ -86,7 +86,7 @@
         const yValues2 = [];
         const tableF1 = [];
         const tableF2 = [];
-        for (let x = -10; x <= 10; x += step) {
+        for (let x = -10; x <= 9; x += step) {
             const xRounded = parseFloat(x.toFixed(2));
             xValues.push(xRounded);
 
@@ -99,7 +99,7 @@
             tableF2.push([xRounded, y2]);
         }
 
-        // Заполнение таблицы для f₁(x)
+        // Заполнение таблицы для f₁(x) - 1
         const tableF1Body = document.querySelector('#table_f1 tbody');
         tableF1.forEach(([x, y]) => {
             const row = document.createElement('tr');
