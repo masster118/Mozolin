@@ -1,38 +1,89 @@
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>График функции</title>
+    <title>Графики функций и таблица значений</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+        }
+        #charts-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        #chart1, #chart2 {
+            width: 48%; /* Каждая часть занимает половину ширины экрана */
+            height: 400px;
+        }
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="chart" width="800" height="400"></canvas>
+    <div id="charts-container">
+        <canvas id="chart1"></canvas>
+        <canvas id="chart2"></canvas>
+    </div>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>x</th>
+                <th>f1(x)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
     <script>
-        // Функция f(x) = ∛(|x| + 2) - 1
-        function f(x) {
+        // Функция f1(x) = ∛(|x| + 2) - 1
+        function f1(x) {
             return Math.cbrt(Math.abs(x) + 2) - 1;
         }
 
         // Генерация значений для графика
-        const step = 0.1; // Шаг табулирования
-        const xValues = [];
-        const yValues = [];
-        for (let x = -10; x <= 10; x += step) {
+        const stepGraph = 0.1; // Шаг табулирования графика
+        const stepTable = 0.3; // Шаг табулирования таблицы
+        const xValuesGraph = [];
+        const yValuesGraph1 = [];
+        const tableData = [];
+        
+        for (let x = -10; x <= 10; x += stepGraph) { // График на всем отрезке
             const xRounded = parseFloat(x.toFixed(3)); // Округление до 3 знаков
-            xValues.push(xRounded);
-            yValues.push(f(xRounded));
+            xValuesGraph.push(xRounded);
+            yValuesGraph1.push(f1(xRounded));
         }
 
-        // Настройка графика
-        const ctx = document.getElementById('chart').getContext('2d');
-        new Chart(ctx, {
+        // Генерация данных для таблицы
+        for (let x = -10; x <= 10; x += stepTable) {
+            const xRounded = parseFloat(x.toFixed(3)); // Округление до 3 знаков
+            tableData.push({ x: xRounded, y: parseFloat(f1(xRounded).toFixed(3)) });
+        }
+
+        // Настройка первого графика
+        const ctx1 = document.getElementById('chart1').getContext('2d');
+        new Chart(ctx1, {
             type: 'line',
             data: {
-                labels: xValues,
+                labels: xValuesGraph,
                 datasets: [{
-                    label: 'f(x) = ∛(|x| + 2) - 1',
-                    data: yValues,
+                    label: 'f1(x) = ∛(|x| + 2) - 1',
+                    data: yValuesGraph1,
                     borderColor: 'red',
                     borderWidth: 2,
                     fill: false
@@ -58,11 +109,65 @@
                     y: {
                         title: {
                             display: true,
-                            text: 'f(x)'
+                            text: 'f1(x)'
                         }
                     }
                 }
             }
+        });
+
+        // Настройка второго графика (пустой для будущей функции)
+        const ctx2 = document.getElementById('chart2').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: [], // Здесь пока нет данных
+                datasets: [{
+                    label: 'f2(x) (добавьте функцию)',
+                    data: [],
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'f2(x)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Заполнение таблицы
+        const tableBody = document.getElementById('data-table').querySelector('tbody');
+        tableData.forEach(row => {
+            const tr = document.createElement('tr');
+            const tdX = document.createElement('td');
+            const tdY = document.createElement('td');
+            tdX.textContent = row.x;
+            tdY.textContent = row.y;
+            tr.appendChild(tdX);
+            tr.appendChild(tdY);
+            tableBody.appendChild(tr);
         });
     </script>
 </body>
