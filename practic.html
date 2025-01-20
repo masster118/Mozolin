@@ -86,4 +86,89 @@
         const yValues2 = [];
         const tableF1 = [];
         const tableF2 = [];
-        
+        for (let x = -10; x <= 10; x += step) {
+            const xRounded = parseFloat(x.toFixed(2));
+            xValues.push(xRounded);
+
+            const y1 = xRounded <= -0.1 ? f1(xRounded) : null;
+            yValues1.push(y1);
+            if (y1 !== null) tableF1.push([xRounded, y1]);
+
+            const y2 = f2(xRounded);
+            yValues2.push(y2);
+            tableF2.push([xRounded, y2]);
+        }
+
+        // Заполнение таблицы для f₁(x)
+        const tableF1Body = document.querySelector('#table_f1 tbody');
+        tableF1.forEach(([x, y]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${x}</td><td>${y.toFixed(3)}</td>`;
+            tableF1Body.appendChild(row);
+        });
+
+        // Заполнение таблицы для f₂(x)
+        const tableF2Body = document.querySelector('#table_f2 tbody');
+        tableF2.forEach(([x, y]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${x}</td><td>${y.toFixed(3)}</td>`;
+            tableF2Body.appendChild(row);
+        });
+
+        // Настройка графика
+        const ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: xValues,
+                datasets: [
+                    {
+                        label: 'f₁(x) = ∛(|x| + 2) - 1 (x ≤ -0.1)',
+                        data: yValues1,
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: false,
+                        spanGaps: false // Убираем соединение разрывов
+                    },
+                    {
+                        label: 'f₂(x) = sin(x²) + x⁰.²⁵',
+                        data: yValues2,
+                        borderColor: 'blue',
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'x'
+                        },
+                        min: -10,
+                        max: 10
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'f(x)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
