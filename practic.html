@@ -2,98 +2,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Графики функций и таблица значений</title>
+    <title>График двух функций</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-        }
-        #charts-container {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-        #chart1, #chart2 {
-            width: 48%; /* Каждая часть занимает половину ширины экрана */
-            height: 400px;
-        }
+        /* Оформление таблиц */
         table {
+            width: 45%;
             margin-top: 20px;
             border-collapse: collapse;
-            width: 100%;
-        }
-        table, th, td {
-            border: 1px solid black;
+            margin: 0 auto;
         }
         th, td {
+            border: 1px solid #ccc;
             padding: 8px;
             text-align: center;
         }
-        th {
-            background-color: #f2f2f2;
+
+        /* Контейнер для таблиц */
+        .tables-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="charts-container">
-        <canvas id="chart1"></canvas>
-        <canvas id="chart2"></canvas>
+    <canvas id="chart" width="800" height="400"></canvas>
+
+    <!-- Контейнер с таблицами под графиком -->
+    <div class="tables-container">
+        <!-- Таблица для f₁(x) -->
+        <div>
+            <h3>Таблица для f₁(x) = ∛(|x| + 2) - 1</h3>
+            <table id="table_f1">
+                <thead>
+                    <tr>
+                        <th>x</th>
+                        <th>f₁(x)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Таблица для f₂(x) -->
+        <div>
+            <h3>Таблица для f₂(x) = sin(x²) + x⁰.²⁵</h3>
+            <table id="table_f2">
+                <thead>
+                    <tr>
+                        <th>x</th>
+                        <th>f₂(x)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
-    <table id="data-table">
-        <thead>
-            <tr>
-                <th>x</th>
-                <th>f1(x)</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
     <script>
-        // Функция f1(x) = ∛(|x| + 2) - 1
+        // Определение функций
         function f1(x) {
-            return Math.cbrt(Math.abs(x) + 2) - 1;
+            return Math.cbrt(Math.abs(x) + 2) - 1; // f₁(x) = ∛(|x| + 2) - 1
         }
 
-        // Генерация значений для графика
-        const stepGraph = 0.1; // Шаг табулирования графика
-        const stepTable = 0.3; // Шаг табулирования таблицы
-        const xValuesGraph = [];
-        const yValuesGraph1 = [];
-        const tableData = [];
-        
-        for (let x = -10; x <= 10; x += stepGraph) { // График на всем отрезке
+        function f2(x) {
+            return Math.sin(x ** 2) + x ** 0.25; // f₂(x) = sin(x²) + x⁰.²⁵
+        }
+
+        // Генерация данных для графика
+        const step = 0.3; // Шаг табулирования
+        const xValues = [];
+        const yValues1 = [];
+        const yValues2 = [];
+        const tableF1 = [];
+        const tableF2 = [];
+
+        for (let x = -10; x <= 10; x += step) {
             const xRounded = parseFloat(x.toFixed(3)); // Округление до 3 знаков
-            xValuesGraph.push(xRounded);
-            yValuesGraph1.push(f1(xRounded));
+            xValues.push(xRounded);
+            const y1 = f1(xRounded);
+            const y2 = f2(xRounded);
+            yValues1.push(y1);
+            yValues2.push(y2);
+            tableF1.push([xRounded, y1]);
+            tableF2.push([xRounded, y2]);
         }
 
-        // Генерация данных для таблицы
-        for (let x = -10; x <= 10; x += stepTable) {
-            const xRounded = parseFloat(x.toFixed(3)); // Округление до 3 знаков
-            tableData.push({ x: xRounded, y: parseFloat(f1(xRounded).toFixed(3)) });
-        }
+        // Заполнение таблицы f₁(x)
+        const tableF1Body = document.querySelector('#table_f1 tbody');
+        tableF1.forEach(([x, y]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${x}</td><td>${y}</td>`;
+            tableF1Body.appendChild(row);
+        });
 
-        // Настройка первого графика
-        const ctx1 = document.getElementById('chart1').getContext('2d');
-        new Chart(ctx1, {
+        // Заполнение таблицы f₂(x)
+        const tableF2Body = document.querySelector('#table_f2 tbody');
+        tableF2.forEach(([x, y]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${x}</td><td>${y}</td>`;
+            tableF2Body.appendChild(row);
+        });
+
+        // Настройка графика
+        const ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
             type: 'line',
             data: {
-                labels: xValuesGraph,
-                datasets: [{
-                    label: 'f1(x) = ∛(|x| + 2) - 1',
-                    data: yValuesGraph1,
-                    borderColor: 'red',
-                    borderWidth: 2,
-                    fill: false
-                }]
+                labels: xValues,
+                datasets: [
+                    {
+                        label: 'f₁(x) = ∛(|x| + 2) - 1',
+                        data: yValues1,
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4 // Сглаживание кривой
+                    },
+                    {
+                        label: 'f₂(x) = sin(x²) + x⁰.²⁵',
+                        data: yValues2,
+                        borderColor: 'blue',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4 // Сглаживание кривой
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 plugins: {
                     legend: {
-                        display: true
+                        display: true,
+                        position: 'top'
                     },
                     tooltip: {
                         enabled: true
@@ -109,65 +150,11 @@
                     y: {
                         title: {
                             display: true,
-                            text: 'f1(x)'
+                            text: 'f(x)'
                         }
                     }
                 }
             }
-        });
-
-        // Настройка второго графика (пустой для будущей функции)
-        const ctx2 = document.getElementById('chart2').getContext('2d');
-        new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: [], // Здесь пока нет данных
-                datasets: [{
-                    label: 'f2(x) (добавьте функцию)',
-                    data: [],
-                    borderColor: 'blue',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'x'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'f2(x)'
-                        }
-                    }
-                }
-            }
-        });
-
-        // Заполнение таблицы
-        const tableBody = document.getElementById('data-table').querySelector('tbody');
-        tableData.forEach(row => {
-            const tr = document.createElement('tr');
-            const tdX = document.createElement('td');
-            const tdY = document.createElement('td');
-            tdX.textContent = row.x;
-            tdY.textContent = row.y;
-            tr.appendChild(tdX);
-            tr.appendChild(tdY);
-            tableBody.appendChild(tr);
         });
     </script>
 </body>
