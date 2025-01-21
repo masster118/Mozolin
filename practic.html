@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>График двух функций</title>
+    <title>График трех функций</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -14,7 +15,7 @@
         canvas {
             display: block;
             margin: 20px auto;
-            width: 95%; /* Устанавливаем ширину графика на всю страницу */
+            width: 50%;
         }
 
         .tables-container {
@@ -24,7 +25,7 @@
         }
 
         table {
-            width: 45%;
+            width: 30%;
             border-collapse: collapse;
         }
 
@@ -67,6 +68,18 @@
                 <tbody></tbody>
             </table>
         </div>
+        <div>
+            <h3>Таблица для f₃(x) = ln²(x) + √x</h3>
+            <table id="table_f3">
+                <thead>
+                    <tr>
+                        <th>x</th>
+                        <th>f₃(x)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -79,31 +92,71 @@
             return Math.sin(x ** 2) + x ** 0.25; // f₂(x) = sin(x²) + x⁰.²⁵
         }
 
-        // Генерация данных для графика и таблиц
-        const step = 0.1; // Шаг табулирования
-        const xValues = [];
-        const yValues1 = [];
-        const yValues2 = [];
-        const tableF1 = [];
-        const tableF2 = [];
-<<<<<<< HEAD
-        for (let x = -10; x <= 10..; x += step) {
-=======
-        for (let x = -10; x <= 10; x += step) {
->>>>>>> e1f5cedc4ee76e8eec764b185822a1ce28e61039
-            const xRounded = parseFloat(x.toFixed(2));
-            xValues.push(xRounded);
-
-            const y1 = xRounded <= -0.1 ? f1(xRounded) : null;
-            yValues1.push(y1);
-            if (y1 !== null) tableF1.push([xRounded, y1]);
-
-            const y2 = f2(xRounded);
-            yValues2.push(y2);
-            tableF2.push([xRounded, y2]);
+        function f3(x) {
+            if (x > 0) {
+                return Math.pow(Math.log(x), 2) + Math.sqrt(x); // f₃(x) = ln²(x) + √x
+            }
+            return null; // Возвращаем null для недопустимых значений x
         }
 
-        // Заполнение таблицы для f₁(x) - 1
+        // Интервалы для каждой функции
+        const xStart = -4.5;
+        const xEnd = 6.1;
+        const totalLength = xEnd - xStart;
+        const segmentLength = totalLength / 3;
+
+        const x1Start = xStart;
+        const x1End = x1Start + segmentLength;
+
+        const x2Start = x1End;
+        const x2End = x2Start + segmentLength;
+
+        const x3Start = x2End;
+        const x3End = xEnd;
+
+        const step = 0.1;
+
+        const xValues1 = [];
+        const yValues1 = [];
+        const tableF1 = [];
+
+        const xValues2 = [];
+        const yValues2 = [];
+        const tableF2 = [];
+
+        const xValues3 = [];
+        const yValues3 = [];
+        const tableF3 = [];
+
+        for (let x = x1Start; x <= x1End; x += step) {
+            const xRounded = parseFloat(x.toFixed(2));
+            xValues1.push(xRounded);
+            const y = f1(xRounded);
+            yValues1.push(y);
+            tableF1.push([xRounded, y]);
+        }
+
+        for (let x = x2Start; x <= x2End; x += step) {
+            const xRounded = parseFloat(x.toFixed(2));
+            xValues2.push(xRounded);
+            const y = f2(xRounded);
+            yValues2.push(y);
+            tableF2.push([xRounded, y]);
+        }
+
+        for (let x = x3Start; x <= x3End; x += step) {
+            const xRounded = parseFloat(x.toFixed(2));
+            if (xRounded > 0) { // Определено только для x > 0
+                xValues3.push(xRounded);
+                const y = f3(xRounded);
+                if (y !== null) {
+                    yValues3.push(y);
+                    tableF3.push([xRounded, y]);
+                }
+            }
+        }
+
+        // Заполнение таблиц
         const tableF1Body = document.querySelector('#table_f1 tbody');
         tableF1.forEach(([x, y]) => {
             const row = document.createElement('tr');
@@ -111,7 +164,6 @@
             tableF1Body.appendChild(row);
         });
 
-        // Заполнение таблицы для f₂(x)
         const tableF2Body = document.querySelector('#table_f2 tbody');
         tableF2.forEach(([x, y]) => {
             const row = document.createElement('tr');
@@ -119,25 +171,37 @@
             tableF2Body.appendChild(row);
         });
 
+        const tableF3Body = document.querySelector('#table_f3 tbody');
+        tableF3.forEach(([x, y]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${x}</td><td>${y.toFixed(3)}</td>`;
+            tableF3Body.appendChild(row);
+        });
+
         // Настройка графика
         const ctx = document.getElementById('chart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: xValues,
                 datasets: [
                     {
-                        label: 'f₁(x) = ∛(|x| + 2) - 1 (x ≤ -0.1)',
-                        data: yValues1,
+                        label: 'f₁(x) = ∛(|x| + 2) - 1',
+                        data: xValues1.map((x, i) => ({ x: x, y: yValues1[i] })),
                         borderColor: 'red',
                         borderWidth: 2,
-                        fill: false,
-                        spanGaps: false // Убираем соединение разрывов
+                        fill: false
                     },
                     {
                         label: 'f₂(x) = sin(x²) + x⁰.²⁵',
-                        data: yValues2,
+                        data: xValues2.map((x, i) => ({ x: x, y: yValues2[i] })),
                         borderColor: 'blue',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'f₃(x) = ln²(x) + √x',
+                        data: xValues3.map((x, i) => ({ x: x, y: yValues3[i] })),
+                        borderColor: 'green',
                         borderWidth: 2,
                         fill: false
                     }
@@ -161,8 +225,8 @@
                             display: true,
                             text: 'x'
                         },
-                        min: -10,
-                        max: 10
+                        min: xStart,
+                        max: xEnd
                     },
                     y: {
                         title: {
